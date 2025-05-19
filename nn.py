@@ -229,11 +229,11 @@ def check_user_authorization(user_id, chat_id=None):
     if chat_id and chat_id in PUBLIC_GROUPS:
         # Even in public groups, channel membership is required
         try:
-            chat_member = bot.get_chat_member("@NXTLVLPUBLIC", user_id)
+            chat_member = bot.get_chat_member("@nxtlvleducation0", user_id)
             if chat_member.status not in ['member', 'administrator', 'creator']:
                 return {
                     'authorized': False,
-                    'message': '🚫 *ACCESS DENIED*\n\nYou must join our official channel first!\n\n📢 Join: @NXTLVLPUBLIC'
+                    'message': '🚫 *ACCESS DENIED*\n\nYou must join our official channel first!\n\n📢 Join: @nxtlvleducation0'
                 }
         except Exception as e:
             logger.error(f"Error checking channel membership: {e}")
@@ -245,11 +245,11 @@ def check_user_authorization(user_id, chat_id=None):
     
     # For private chats and non-public groups, check channel membership
     try:
-        chat_member = bot.get_chat_member("@NXTLVLPUBLIC", user_id)
+        chat_member = bot.get_chat_member("@nxtlvleducation0", user_id)
         if chat_member.status not in ['member', 'administrator', 'creator']:
             return {
                 'authorized': False,
-                'message': '🚫 *ACCESS DENIED*\n\nYou must join our official channel first!\n\n📢 Join: @NXTLVLPUBLIC'
+                'message': '🚫 *ACCESS DENIED*\n\nYou must join our official channel first!\n\n📢 Join: @nxtlvleducation0'
             }
     except Exception as e:
         logger.error(f"Error checking channel membership: {e}")
@@ -1034,7 +1034,7 @@ def welcome_start(message):
 
     # Check channel membership
     try:
-        chat_member = bot.get_chat_member("@NXTLVLPUBLIC", user_id)
+        chat_member = bot.get_chat_member("@nxtlvleducation0", user_id)
         channel_joined = chat_member.status in ['member', 'administrator', 'creator']
     except Exception as e:
         logger.error(f"Error checking channel membership: {e}")
