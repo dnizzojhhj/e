@@ -145,7 +145,7 @@ KEY_PRICES = {
 # --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ADMIN_IDS = [6882674372]  # Replace with actual admin IDs
-BOT_TOKEN = "7052787265:AAHF9957hIRSGZtaENdHZAA_9Cx0iROS9k0"  # Replace with your bot token
+BOT_TOKEN = "7688465541:AAG3BcHKTVHhKr3sC-pXP29QR9cKVSdLvP0"  # Replace with your bot token
 # --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -221,7 +221,29 @@ def get_random_video():
 def check_user_authorization(user_id, chat_id=None):
     """Check if user is authorized to perform attacks"""
     
-    # Check channel membership first
+    # Admins and owner have full access everywhere
+    if is_admin(user_id) or is_owner(user_id):
+        return {'authorized': True, 'message': ''}
+
+    # Check if in public group where attacks are allowed
+    if chat_id and chat_id in PUBLIC_GROUPS:
+        # Even in public groups, channel membership is required
+        try:
+            chat_member = bot.get_chat_member("@NXTLVLPUBLIC", user_id)
+            if chat_member.status not in ['member', 'administrator', 'creator']:
+                return {
+                    'authorized': False,
+                    'message': '🚫 *ACCESS DENIED*\n\nYou must join our official channel first!\n\n📢 Join: @NXTLVLPUBLIC'
+                }
+        except Exception as e:
+            logger.error(f"Error checking channel membership: {e}")
+            return {
+                'authorized': False,
+                'message': '🚫 *ACCESS DENIED*\n\nError checking channel membership!\n\nPlease try again later.'
+            }
+        return {'authorized': True, 'message': ''}
+    
+    # For private chats and non-public groups, check channel membership
     try:
         chat_member = bot.get_chat_member("@NXTLVLPUBLIC", user_id)
         if chat_member.status not in ['member', 'administrator', 'creator']:
@@ -235,14 +257,6 @@ def check_user_authorization(user_id, chat_id=None):
             'authorized': False,
             'message': '🚫 *ACCESS DENIED*\n\nError checking channel membership!\n\nPlease try again later.'
         }
-    
-    # Admins and owner have full access everywhere
-    if is_admin(user_id) or is_owner(user_id):
-        return {'authorized': True, 'message': ''}
-
-    # Check if in public group where attacks are allowed
-    if chat_id and chat_id in PUBLIC_GROUPS:
-        return {'authorized': True, 'message': ''}
     
     users = load_users()
     user = next((u for u in users if u.get('user_id') == user_id), None)
@@ -1238,19 +1252,12 @@ def attack_command(message):
     if not auth['authorized']:
         bot.send_message(
             chat_id,
-            (
-                "🚷 *VIP ACCESS ONLY*\n\n"
-                "╔══════════════════════╗\n"
-                "║   🔐 ACCESS DENIED    ║\n"
-                "╚══════════════════════╝\n\n"
-                f"{auth['message']}\n\n"
-                "👑 Contact Admin: @LASTWISHES0"
-            ),
+            auth['message'],  # Show the specific denial reason
             parse_mode='Markdown'
         )
         return
 
-    # Try to send video instructions
+    # Rest of the function remains the same...
     try:
         video_url = get_random_video()
         bot.send_video(
